@@ -1,0 +1,20 @@
+{
+  "name": "lccwifiserver",
+  "version": "0.1.0",
+  "description": "",
+  "main": "src/app/app.js",
+  "scripts": {
+    "start": "node src/app/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "yayes2, CF12",
+  "license": "MIT",
+  "devDependencies": {
+    "standard": "^9.0.2"
+  },
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "ejs": "^2.5.6",
+    "express": "^4.15.2"
+  }
+}
