@@ -11,7 +11,7 @@ app.set('view engine', 'html')
 app.use(express.static(path.join(process.cwd(), 'build')))
 app.use(bodyParser.json())
 
-const authUsers = JSON.parse(fs.readFileSync('./cfg/authUsers.json'))
+function loadUsers () { return JSON.parse(fs.readFileSync('./cfg/authUsers.json')) }
 
 app.server = app.listen(8080, function () {
   const host = app.server.address().address
@@ -22,7 +22,7 @@ app.server = app.listen(8080, function () {
 app.post('/auth', (req, res) => {
   console.log(req.body)
 
-  if (authUsers.users.indexOf(req.body.email) !== -1) {
+  if (loadUsers().users.indexOf(req.body.email) !== -1) {
     res.json({
       auth: true
     })
