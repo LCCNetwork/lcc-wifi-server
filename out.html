@@ -1,0 +1,50 @@
+<html><head><title>Traffic</title>
+<script type="text/javascript">
+function getSize(size) {
+    var prefix=new Array("","k","M","G","T","P","E","Z"); var base=1000;
+    var pos=0;
+    while (size>base) {
+        size/=base; pos++;
+    }
+    if (pos > 2) precision=1000; else precision = 1;
+    return (Math.round(size*precision)/precision)+' '+prefix[pos];}
+</script></head>
+<body><h1>Total Usage:</h1>
+<table border="1">
+<tr bgcolor=silver>
+<th>User</th>
+<th>Download</th>
+<th>Upload</th>
+<th>Total</th>
+<th>First seen</th>
+<th>Last seen</th>
+</tr>
+<script type="text/javascript">
+var values = new Array(
+
+new Array("Aidans-MBP","e0:f8:47:00:f7:02","192.168.1.142",
+39481.000000,21302,60783,"16-04-2017_18:28:09","17-04-2017_01:19:31"),
+
+new Array("c8:2a:14:2d:41:90","c8:2a:14:2d:41:90","192.168.1.2",
+0.000000,0,0,"16-04-2017_18:28:09","16-04-2017_18:28:09"),
+
+new Array("2a:e3:e0:54:dc:db","2a:e3:e0:54:dc:db","192.168.42.129",
+0.000000,0,0,"17-04-2017_01:19:13","17-04-2017_01:19:13"),
+
+new Array("1c:87:2c:b6:9c:40","1c:87:2c:b6:9c:40","192.168.1.191",
+0.000000,0,0,"16-04-2017_18:28:09","16-04-2017_18:28:09"),
+0);
+var totalIn = 0;
+var totalOut = 0;
+for (i=0; i < values.length-1; i++) {
+    totalIn += values[i][3];
+    totalOut += values[i][4];
+    document.write("<tr><td><div title=\"" + values[i][1] + " (" + values[i][2] + ")" + "\">" + values[i][0] + "</div></td>");
+    for (j=3; j < 6; j++)
+        document.write("<td>" + getSize(values[i][j]) + "</td>");
+    document.write("<td>" + values[i][6] + "</td><td>" + values[i][7] + "</td></tr>");
+}
+document.write("<tr><td>TOTAL</td><td>" + getSize(totalIn) + "</td><td>" + getSize(totalOut) + "</td><td>" + getSize(totalIn + totalOut) + "</td><td></td><td></td></tr>");
+</script></table>
+<br /><small>This page was generated on Mon Apr 17 01:19:42 UTC 2017</small>
+</body></html>
