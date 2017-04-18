@@ -1,3 +1,5 @@
+'use strict'
+
 const express = require('express')
 const path = require('path')
 const fs = require('fs')
@@ -5,6 +7,7 @@ const bodyParser = require('body-parser')
 const cheerio = require('cheerio')
 const _eval = require('eval')
 const firebaseAdmin = require('firebase-admin')
+const exec = require('child_process').exec
 const app = express()
 
 app.set('views', path.join(process.cwd(), 'build'))
@@ -22,8 +25,33 @@ firebaseAdmin.initializeApp({
 const authUsers = require('../../cfg/authUsers.json').users
 let users = []
 
+setInterval(refreshUsage, 30000)
+
+function refreshUsage () {
+  exec('wrtbwmon update ~/usage.db', (error, stdout, stderr) => {
+    if (error) {
+      console.error(`exec error: ${error}`)
+      return
+    }
+    console.log(`stdout: ${stdout}`)
+    console.log(`stderr: ${stderr}`)
+
+    exec('wrtbwmon publish ~/usage.db ~/lcc-wifi-server-master/out.html', (error, stdout, stderr) => {
+      if (error) {
+        console.error(`exec error: ${error}`)
+        return
+      }
+
+      console.log(`stdout: ${stdout}`)
+      console.log(`stderr: ${stderr}`)
+    })
+  })
+}
+
 function getDataUsage (uid) {
   return new Promise((resolve, reject) => {
+    refreshUsage()
+
     fs.readFile('out.html', 'utf8', (err, file) => {
       if (err) reject(err)
       const $ = cheerio.load(file)
@@ -101,6 +129,8 @@ app.post('/auth', (req, res) => {
 
 app.get('/user/:uid', (req, res) => {
   getDataUsage(req.params.uid).then((used) => {
+    console.log(used)
+
     res.json({
       used: used,
       total: 2000
