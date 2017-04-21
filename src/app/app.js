@@ -25,9 +25,43 @@ firebaseAdmin.initializeApp({
 const authUsers = require('../../cfg/authUsers.json').users
 let users = []
 
-setInterval(refreshUsage, 30000)
+setInterval(checkUsage, 30000)
 
-function refreshUsage () {
+function checkUsage () {
+  reloadUsage()
+
+  for (let user in users) {
+    user = users[user]
+
+    if (getDataUsage(user.uid) >= user.dataCap) {
+      for (let ip in user.ips) {
+        ip = user.ips[ip]
+
+        exec('iptables -t mangle -A internet -s ' + ip + ' -j DROP', (error, stdout, stderr) => {
+          if (error) {
+            console.error(`exec error: ${error}`)
+            return
+          }
+
+          console.log(`stdout: ${stdout}`)
+          console.log(`stderr: ${stderr}`)
+
+          exec('iptables -t nat -A PREROUTING -s ' + ip + ' -p udp --dport 53 -j DNAT --to-destination 192.168.1.1', (error, stdout, stderr) => {
+            if (error) {
+              console.error(`exec error: ${error}`)
+              return
+            }
+
+            console.log(`stdout: ${stdout}`)
+            console.log(`stderr: ${stderr}`)
+          })
+        })
+      }
+    }
+  }
+}
+
+function reloadUsage () {
   exec('wrtbwmon update ~/usage.db', (error, stdout, stderr) => {
     if (error) {
       console.error(`exec error: ${error}`)
@@ -50,7 +84,7 @@ function refreshUsage () {
 
 function getDataUsage (uid) {
   return new Promise((resolve, reject) => {
-    refreshUsage()
+    reloadUsage()
 
     fs.readFile('out.html', 'utf8', (err, file) => {
       if (err) reject(err)
@@ -68,7 +102,7 @@ function getDataUsage (uid) {
 
       for (let device in values) {
         device = values[device]
-        if (user.ips[device[2]]) dataSum += device[5]
+        if (device[2] in user.ips) dataSum += device[5]
       }
 
       resolve(dataSum)
@@ -103,7 +137,34 @@ app.post('/auth', (req, res) => {
 
       if (authUsers[email]) {
         if (!users[uid]) users[uid] = new User(email, uid, authUsers[email], [req.ip])
-        else users[uid].ips[users[uid].ips.length] = req.ip
+        else if (!(req.ip in users[uid].ips)) users[uid].ips[users[uid].ips.length] = req.ip
+
+        if (getDataUsage(uid) > users[uid].dataCap) {
+          res.json({
+            auth: false
+          })
+          return
+        }
+
+        exec('iptables -t mangle -A internet -s ' + req.ip + ' -j RETURN', (error, stdout, stderr) => {
+          if (error) {
+            console.error(`exec error: ${error}`)
+            return
+          }
+
+          console.log(`stdout: ${stdout}`)
+          console.log(`stderr: ${stderr}`)
+
+          exec('iptables -t nat -A PREROUTING -s ' + req.ip + ' -p udp --dport 53 -j DNAT --to-destination 8.8.8.8', (error, stdout, stderr) => {
+            if (error) {
+              console.error(`exec error: ${error}`)
+              return
+            }
+
+            console.log(`stdout: ${stdout}`)
+            console.log(`stderr: ${stderr}`)
+          })
+        })
 
         res.json({
           auth: true
@@ -133,7 +194,7 @@ app.get('/user/:uid', (req, res) => {
 
     res.json({
       used: used,
-      total: 2000
+      total: users[req.params.uid].dataCap
     })
   }).catch((err) => {
     console.log(err)
