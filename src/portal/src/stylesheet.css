@@ -84,6 +84,8 @@ body {
 
 /*Buttons*/
 .button-bg {
+    color: inherit;
+    text-decoration: inherit;
     display: block;
     height: 65px;
     width: 300px;

@@ -1,0 +1,209 @@
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    src: url(../res/fonts/Roboto-Regular.ttf)
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: url(../res/images/background.jpg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    font-family: 'Roboto', 'sans-serif';
+}
+
+.wrapper-loader {
+    z-index: 10;
+    background-color: #2C2F33;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.wrapper-main {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+.main-title {
+    color: white;
+    position: absolute;
+    width: 100%;
+    top: 42%;
+
+    font-family: 'Roboto', 'sans-serif';
+    font-size: 40px;
+    text-align: center;
+    text-shadow: 1px 1px 2px #000;
+    margin: 0 auto;
+}
+
+.main-signin-button {
+    background-image: url("../res/google_signin_buttons/web/1x/btn_google_signin_light_normal_web.png");
+
+    display: block;
+    position: relative;
+    width: 191px;
+    height: 49px;
+    margin-left: auto;
+    margin-right: auto;
+    top: 52%;
+
+    transition: background-image 0.1s ease-in;
+}
+
+.main-signin-button:hover {
+    background-image: url("../res/google_signin_buttons/web/1x/btn_google_signin_dark_focus_web.png");
+    cursor: pointer;
+}
+
+.loader {
+    position: relative;
+    top: 50%;
+
+    width: 60px;
+    height: 60px;
+    background-color: #7289DA;
+    margin: auto;
+
+    -webkit-animation: sk-rotateplane 1.2s infinite ease-in-out;
+    animation: sk-rotateplane 1.2s infinite ease-in-out;
+}
+
+@-webkit-keyframes sk-rotateplane {
+    0% { -webkit-transform: perspective(120px) }
+    50% { -webkit-transform: perspective(120px) rotateY(180deg) }
+    100% { -webkit-transform: perspective(120px) rotateY(180deg)  rotateX(180deg) }
+}
+
+@keyframes sk-rotateplane {
+    0% {
+        transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+        -webkit-transform: perspective(120px) rotateX(0deg) rotateY(0deg)
+    } 50% {
+          transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+          -webkit-transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg)
+      } 100% {
+            transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+            -webkit-transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+        }
+}
+
+.wrapper-app {
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    background-color: #23272A;
+}
+
+.app-user-image {
+    border-radius: 50%;
+    border: 2px solid white;
+    width: 100px;
+    height: 100px;
+    box-shadow: 0 0 1px white;
+}
+
+.wrapper-app-body {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    font-family: 'Roboto', 'sans-serif';
+    color: white;
+}
+
+.wrapper-app-body p {
+    margin: 0;
+}
+
+.app-title {
+    text-decoration: underline;
+    font-size: 52px;
+    padding-top: 20px;
+}
+
+.app-user-name {
+    padding-top: 18px;
+    font-size: 26px;
+}
+
+.app-data-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    width: 400px;
+    height: 400px;
+}
+
+.app-data-label {
+    font-size: 60px;
+
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.app-data-label.top {
+    top: 33%;
+}
+
+.app-data-label.bottom {
+    top: 53%;
+}
+
+.wrapper-app-footer-buttons {
+    display: flex;
+    width: 100%;
+    margin-bottom: 42px;
+    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+}
+
+.button {
+    display: block;
+    height: 50px;
+    width: 200px;
+    margin: 0 20px;
+    line-height: 50px;
+
+    box-shadow: 1px 1px 5px #141414;
+    background-color: #424242;
+    border-radius: 2px;
+    text-align: center;
+    vertical-align: middle;
+
+    transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.button:hover {
+    box-shadow: 1px 1px 10px #000;
+    cursor: pointer;
+    background-color: #4e4e4e;
+}
+
+.wrapper-app-footer {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    bottom: 15px;
+}

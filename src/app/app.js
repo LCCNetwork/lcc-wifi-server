@@ -125,6 +125,12 @@ app.server = app.listen(8080, function () {
   console.info('Server listening at http://%s:%s', host, port)
 })
 
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next()
+})
+
 app.post('/auth', (req, res) => {
   console.log(req.body.token)
 
@@ -202,7 +208,7 @@ app.get('/user/:uid', (req, res) => {
 })
 
 app.use((req, res) => {
-  console.info('[404] ' + req.path)
+  console.info('[404] ' + req.method + req.path)
   res.status(404)
 
   if (req.accepts('html')) res.render('error/404')
