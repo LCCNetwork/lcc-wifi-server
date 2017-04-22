@@ -132,7 +132,7 @@ app.post('/auth', (req, res) => {
 
     firebaseAdmin.auth().getUser(uid).then((userRecord) => {
       const email = userRecord.email
-      const ip = req.ip.split(':')[-1]
+      const ip = req.ip.split(':').reverse()[1]
 
       if (authUsers[email]) {
         if (!users[uid]) users[uid] = new User(email, uid, authUsers[email], [ip])
