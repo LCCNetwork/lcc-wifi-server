@@ -132,10 +132,11 @@ app.post('/auth', (req, res) => {
 
     firebaseAdmin.auth().getUser(uid).then((userRecord) => {
       const email = userRecord.email
+      const ip = req.ip.split(':')[-1]
 
       if (authUsers[email]) {
-        if (!users[uid]) users[uid] = new User(email, uid, authUsers[email], [req.ip])
-        else if (!(req.ip in users[uid].ips)) users[uid].ips[users[uid].ips.length] = req.ip
+        if (!users[uid]) users[uid] = new User(email, uid, authUsers[email], [ip])
+        else if (!(req.ip in users[uid].ips)) users[uid].ips[users[uid].ips.length] = ip
 
         if (getDataUsage(uid) > users[uid].dataCap) {
           res.json({
@@ -144,15 +145,13 @@ app.post('/auth', (req, res) => {
           return
         }
 
-        const ip = req.ip.split(':')[-1]
-
         exec('iptables -t nat -I PREROUTING -s ' + ip + ' -p udp --dport 53 -j DNAT --to-destination 8.8.8.8:53', (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`)
             return
           }
 
-          console.log('auth ' + req.ip)
+          console.log('auth ' + ip)
           console.log(`stdout: ${stdout}`)
           console.log(`stderr: ${stderr}`)
 
