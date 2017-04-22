@@ -70,7 +70,7 @@ function reloadUsage () {
     console.log(`stdout: ${stdout}`)
     console.log(`stderr: ${stderr}`)
 
-    exec('wrtbwmon publish ~/usage.db ~/lcc-wifi-server-master/out.html', (error, stdout, stderr) => {
+    exec('wrtbwmon publish ~/usage.db ~/lcc-wifi-server/out.html', (error, stdout, stderr) => {
       if (error) {
         console.error(`exec error: ${error}`)
         return
