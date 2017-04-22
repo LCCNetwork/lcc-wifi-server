@@ -37,24 +37,15 @@ function checkUsage () {
       for (let ip in user.ips) {
         ip = user.ips[ip]
 
-        exec('iptables -t mangle -A internet -s ' + ip + ' -j DROP', (error, stdout, stderr) => {
+        exec('iptables -t nat -D PREROUTING -s ' + ip + ' -p udp --dport 53 -j DNAT --to-destination 8.8.8.8:53', (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`)
             return
           }
 
+          console.log('deauth ' + ip)
           console.log(`stdout: ${stdout}`)
           console.log(`stderr: ${stderr}`)
-
-          exec('iptables -t nat -A PREROUTING -s ' + ip + ' -p udp --dport 53 -j DNAT --to-destination 192.168.1.1', (error, stdout, stderr) => {
-            if (error) {
-              console.error(`exec error: ${error}`)
-              return
-            }
-
-            console.log(`stdout: ${stdout}`)
-            console.log(`stderr: ${stderr}`)
-          })
         })
       }
     }
@@ -141,10 +132,11 @@ app.post('/auth', (req, res) => {
 
     firebaseAdmin.auth().getUser(uid).then((userRecord) => {
       const email = userRecord.email
+      const ip = req.ip.split(':').reverse()[0]
 
       if (authUsers[email]) {
-        if (!users[uid]) users[uid] = new User(email, uid, authUsers[email], [req.ip])
-        else if (!(req.ip in users[uid].ips)) users[uid].ips[users[uid].ips.length] = req.ip
+        if (!users[uid]) users[uid] = new User(email, uid, authUsers[email], [ip])
+        else if (!(req.ip in users[uid].ips)) users[uid].ips[users[uid].ips.length] = ip
 
         if (getDataUsage(uid) > users[uid].dataCap) {
           res.json({
@@ -153,28 +145,19 @@ app.post('/auth', (req, res) => {
           return
         }
 
-        exec('iptables -t mangle -A internet -s ' + req.ip + ' -j RETURN', (error, stdout, stderr) => {
+        exec('iptables -t nat -I PREROUTING -s ' + ip + ' -p udp --dport 53 -j DNAT --to-destination 8.8.8.8:53', (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`)
             return
           }
 
+          console.log('auth ' + ip)
           console.log(`stdout: ${stdout}`)
           console.log(`stderr: ${stderr}`)
 
-          exec('iptables -t nat -A PREROUTING -s ' + req.ip + ' -p udp --dport 53 -j DNAT --to-destination 8.8.8.8', (error, stdout, stderr) => {
-            if (error) {
-              console.error(`exec error: ${error}`)
-              return
-            }
-
-            console.log(`stdout: ${stdout}`)
-            console.log(`stderr: ${stderr}`)
+          res.json({
+            auth: true
           })
-        })
-
-        res.json({
-          auth: true
         })
       } else {
         res.json({
