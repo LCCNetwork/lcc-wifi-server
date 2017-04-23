@@ -53,50 +53,53 @@ function checkUsage () {
 }
 
 function reloadUsage () {
-  exec('wrtbwmon update ~/usage.db', (error, stdout, stderr) => {
-    if (error) {
-      console.error(`exec error: ${error}`)
-      return
-    }
-    console.log(`stdout: ${stdout}`)
-    console.log(`stderr: ${stderr}`)
-
-    exec('wrtbwmon publish ~/usage.db ~/lcc-wifi-server-master/out.html', (error, stdout, stderr) => {
+  return Promise((resolve, reject) => {
+    exec('wrtbwmon update ~/usage.db', (error, stdout, stderr) => {
       if (error) {
-        console.error(`exec error: ${error}`)
-        return
+        reject(error)
       }
-
       console.log(`stdout: ${stdout}`)
       console.log(`stderr: ${stderr}`)
+
+      exec('wrtbwmon publish ~/usage.db ~/lcc-wifi-server-master/out.html', (error, stdout, stderr) => {
+        if (error) {
+          reject(error)
+        }
+
+        console.log(`stdout: ${stdout}`)
+        console.log(`stderr: ${stderr}`)
+        resolve()
+      })
     })
   })
 }
 
 function getDataUsage (uid) {
   return new Promise((resolve, reject) => {
-    reloadUsage()
+    reloadUsage().then(() => {
+      fs.readFile('out.html', 'utf8', (err, file) => {
+        if (err) reject(err)
+        const $ = cheerio.load(file)
+        const user = users[uid]
 
-    fs.readFile('out.html', 'utf8', (err, file) => {
-      if (err) reject(err)
-      const $ = cheerio.load(file)
-      const user = users[uid]
+        const values = _eval($('script', 'body').text() + 'module.exports = values', '', {
+          document: {
+            write: function () {}
+          },
+          getSize: function () {}
+        })
 
-      const values = _eval($('script', 'body').text() + 'module.exports = values', '', {
-        document: {
-          write: function () {}
-        },
-        getSize: function () {}
+        let dataSum = 0
+
+        for (let device in values) {
+          device = values[device]
+          if (device[2] in user.ips) dataSum += device[5]
+        }
+
+        resolve(dataSum)
       })
-
-      let dataSum = 0
-
-      for (let device in values) {
-        device = values[device]
-        if (device[2] in user.ips) dataSum += device[5]
-      }
-
-      resolve(dataSum)
+    }).catch((err) => {
+      reject(err)
     })
   })
 }
