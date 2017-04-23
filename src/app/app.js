@@ -8,6 +8,7 @@ const cheerio = require('cheerio')
 const _eval = require('eval')
 const firebaseAdmin = require('firebase-admin')
 const exec = require('child_process').exec
+const uuid = require('uuid/v4')
 const app = express()
 
 app.set('views', path.join(process.cwd(), 'build'))
@@ -28,8 +29,6 @@ let users = []
 setInterval(checkUsage, 30000)
 
 function checkUsage () {
-  reloadUsage()
-
   for (let user in users) {
     user = users[user]
 
@@ -52,8 +51,8 @@ function checkUsage () {
   }
 }
 
-function reloadUsage () {
-  return Promise((resolve, reject) => {
+function reloadUsage (n) {
+  return new Promise((resolve, reject) => {
     exec('wrtbwmon update ~/usage.db', (error, stdout, stderr) => {
       if (error) {
         reject(error)
@@ -61,7 +60,7 @@ function reloadUsage () {
       console.log(`stdout: ${stdout}`)
       console.log(`stderr: ${stderr}`)
 
-      exec('wrtbwmon publish ~/usage.db ~/lcc-wifi-server-master/out.html', (error, stdout, stderr) => {
+      exec('wrtbwmon publish ~/usage.db ~/lcc-wifi-server-master/out' + n + '.html', (error, stdout, stderr) => {
         if (error) {
           reject(error)
         }
@@ -76,8 +75,10 @@ function reloadUsage () {
 
 function getDataUsage (uid) {
   return new Promise((resolve, reject) => {
-    reloadUsage().then(() => {
-      fs.readFile('out.html', 'utf8', (err, file) => {
+    const fUuid = uuid()
+
+    reloadUsage(uuid).then(() => {
+      fs.readFile('out' + uuid + '.html', 'utf8', (err, file) => {
         if (err) reject(err)
         const $ = cheerio.load(file)
         const user = users[uid]
